@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PalmQueue — ระบบจองคิวล่วงหน้าขายทะลายปาล์มน้ำมัน</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="palm">🌴</span><div><b>PalmQueue</b><small>ระบบจองคิวล่วงหน้าสำหรับนำขายทะลายปาล์มน้ำมัน</small></div></div>
+  <div class="role-switch">
+    <button class="role active" data-role="farmer">🌴 ฝั่งเกษตรกร</button>
+    <button class="role" data-role="staff">🏭 ฝั่งร้านรับซื้อ</button>
+  </div>
+</header>
+
+<div id="toast"></div>
+
+<main>
+  <section id="farmerApp" class="app">
+    <aside class="sidebar">
+      <h3>🌴 PalmQueue</h3>
+      <button data-page="fhome" class="nav active">⌂ หน้าหลัก</button>
+      <button data-page="fbook" class="nav">＋ จองคิว</button>
+      <button data-page="fmy" class="nav">▣ คิวของฉัน</button>
+      <button data-page="fhistory" class="nav">◷ ประวัติรายการ</button>
+      <button data-page="fprofile" class="nav">♙ โปรไฟล์</button>
+      <div class="side-bottom"><button onclick="showToast('ออกจากระบบแล้ว')">↪ ออกจากระบบ</button></div>
+    </aside>
+    <div class="content">
+      <div id="fhome" class="page active">
+        <div class="page-head"><div><h1>สวัสดีครับ, สมชาย 👋</h1><p>จัดการคิวขายปาล์มของคุณได้จากหน้านี้</p></div><button class="primary" onclick="go('fbook')">＋ จองคิวใหม่</button></div>
+        <div class="cards">
+          <div class="stat"><span>คิวรอดำเนินการ</span><b>1</b><small>คิว</small></div>
+          <div class="stat"><span>คิวที่เสร็จแล้ว</span><b>12</b><small>คิว</small></div>
+          <div class="stat"><span>น้ำหนักรวม</span><b>25,680</b><small>กก.</small></div>
+          <div class="stat"><span>รายได้รวม</span><b>162,450</b><small>บาท</small></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><h2>คิวปัจจุบัน</h2><button class="link" onclick="go('fmy')">ดูทั้งหมด →</button></div>
+          <div class="queue-card current"><div><strong class="queue-no">#A023</strong><p>31 ส.ค. 2569 · 09:00–10:00 น.</p><span class="pill wait">รอคิว</span></div><button class="outline" onclick="go('fmy')">รายละเอียด</button></div>
+        </div>
+        <div class="quick">
+          <button onclick="go('fmy')">📋<span>คิวของฉัน</span></button><button onclick="go('fhistory')">▣<span>ประวัติรายการ</span></button><button onclick="go('fprofile')">♙<span>โปรไฟล์</span></button>
+        </div>
+      </div>
+
+      <div id="fbook" class="page">
+        <div class="page-head"><div><h1>จองคิว</h1><p>กรอกข้อมูลเพื่อเลือกวันและเวลานำปาล์มไปขาย</p></div></div>
+        <div class="stepbar"><b>1 เลือกร้านรับซื้อ</b><b>2 เลือกวันที่</b><b>3 เลือกช่วงเวลา</b><b>4 ยืนยัน</b></div>
+        <div class="form-panel">
+          <label>ร้านรับซื้อ<select id="shop"><option>โรงงานปาล์มน้ำมันบ้านนา</option><option>ลานรับซื้อปาล์มคลองแห</option></select></label>
+          <label>วันที่<input id="bookDate" type="date" value="2026-08-31"></label>
+          <label>ช่วงเวลา<select id="bookTime"><option>09:00 - 10:00 น. · เหลือ 8 คิว</option><option>10:00 - 11:00 น. · เหลือ 2 คิว</option><option>13:00 - 14:00 น. · เหลือ 6 คิว</option><option>14:00 - 15:00 น. · เหลือ 4 คิว</option></select></label>
+          <label>ประมาณน้ำหนัก (กก.)<input id="weight" type="number" placeholder="เช่น 2,000" value="2000"></label>
+          <label>ทะเบียนรถ<input id="plate" placeholder="เช่น กบ 1234" value="กบ 1234"></label>
+          <div class="form-actions"><button class="outline" onclick="go('fhome')">ย้อนกลับ</button><button class="primary" onclick="confirmBooking()">ดำเนินการต่อ</button></div>
+        </div>
+      </div>
+
+      <div id="fconfirm" class="page">
+        <div class="page-head"><div><h1>ยืนยันการจอง</h1><p>ตรวจสอบข้อมูลก่อนยืนยัน</p></div></div>
+        <div class="confirm-grid">
+          <div class="panel"><h2>ข้อมูลการจอง</h2><dl id="confirmData"></dl></div>
+          <div class="panel"><h2>ข้อควรรู้</h2><p class="notice">กรุณามาถึงโรงงานก่อนเวลานัดประมาณ 15 นาที และเตรียมบัตรประชาชนกับข้อมูลรถให้พร้อม</p><button class="primary wide" onclick="finishBooking()">✓ ยืนยันการจอง</button><button class="outline wide" onclick="go('fbook')">แก้ไขข้อมูล</button></div>
+        </div>
+      </div>
+
+      <div id="fsuccess" class="page centered">
+        <div class="success-icon">✓</div><h1>จองคิวสำเร็จ!</h1><p>เลขที่คิวของคุณคือ</p><div class="big-number" id="newQueue">#A023</div><div class="panel success-info" id="successData"></div><button class="primary" onclick="go('fmy')">ดูคิวของฉัน</button>
+      </div>
+
+      <div id="fmy" class="page">
+        <div class="page-head"><div><h1>คิวของฉัน</h1><p>ติดตามสถานะการจองทั้งหมด</p></div><button class="primary" onclick="go('fbook')">＋ จองคิวใหม่</button></div>
+        <div class="tabs"><button class="tab active">คิวปัจจุบัน</button><button class="tab">คิวที่ผ่านมา</button></div>
+        <div id="myQueueList" class="list"></div>
+      </div>
+
+      <div id="fhistory" class="page"><div class="page-head"><div><h1>ประวัติรายการ</h1><p>รายการขายปาล์มที่ผ่านมา</p></div></div><div class="panel table-wrap"><table><thead><tr><th>เลขที่</th><th>วันที่</th><th>น้ำหนัก</th><th>ราคา/กก.</th><th>รวม</th></tr></thead><tbody><tr><td>PO-256908-001</td><td>01/08/2569</td><td>2,050 กก.</td><td>6.50</td><td>13,325</td></tr><tr><td>PO-256908-002</td><td>08/08/2569</td><td>1,920 กก.</td><td>6.50</td><td>12,480</td></tr><tr><td>PO-256908-003</td><td>23/08/2569</td><td>2,185 กก.</td><td>6.50</td><td>14,202.50</td></tr></tbody></table></div></div>
+
+      <div id="fprofile" class="page"><div class="page-head"><div><h1>โปรไฟล์</h1><p>ข้อมูลสมาชิก</p></div></div><div class="form-panel"><label>ชื่อ-นามสกุล<input value="สมชาย ใจดี"></label><label>เบอร์โทรศัพท์<input value="081-234-5678"></label><label>เลขบัตรประชาชน<input value="1-2345-67890-12-3"></label><label>ที่อยู่<textarea>123 หมู่ 4 ต.น้ำน้อย อ.หาดใหญ่</textarea></label><button class="primary" onclick="showToast('บันทึกข้อมูลแล้ว')">บันทึกข้อมูล</button></div></div>
+    </div>
+  </section>
+
+  <section id="staffApp" class="app hidden">
+    <aside class="sidebar staffbar">
+      <h3>🌴 PalmQueue</h3><button data-page="sdash" class="nav active">▦ แดชบอร์ด</button><button data-page="squeue" class="nav">▤ จัดการคิว</button><button data-page="sreceive" class="nav">◉ รับซื้อ</button><button data-page="sfarmers" class="nav">♙ เกษตรกร</button><button data-page="sreports" class="nav">▥ รายงาน</button><button data-page="ssettings" class="nav">⚙ ตั้งค่า</button><div class="side-bottom"><button onclick="showToast('ออกจากระบบแล้ว')">↪ ออกจากระบบ</button></div>
+    </aside>
+    <div class="content">
+      <div id="sdash" class="page active"><div class="page-head"><div><h1>แดชบอร์ด</h1><p>ภาพรวมการรับซื้อปาล์มวันนี้ · 31 สิงหาคม 2569</p></div><button class="primary" onclick="goStaff('squeue')">＋ เพิ่มคิว</button></div>
+        <div class="cards"><div class="stat"><span>คิววันนี้</span><b>25</b><small>คิว</small></div><div class="stat"><span>รอคิว</span><b>10</b><small>คิว</small></div><div class="stat"><span>กำลังจ่าย</span><b>5</b><small>คิว</small></div><div class="stat"><span>เสร็จสิ้น</span><b>10</b><small>คิว</small></div></div>
+        <div class="panel"><div class="panel-title"><h2>สรุปการรับซื้อวันนี้</h2></div><div class="summary"><div>น้ำหนักรวม<strong>25,680 กก.</strong></div><div>เกษตรกรทั้งหมด<strong>18 ราย</strong></div><div>มูลค่ารวม<strong>162,450 บาท</strong></div></div></div>
+      </div>
+
+      <div id="squeue" class="page"><div class="page-head"><div><h1>จัดการคิว</h1><p>รายการคิวของวันที่ 31 สิงหาคม 2569</p></div><button class="primary" onclick="showToast('เปิดฟอร์มเพิ่มคิวแล้ว')">＋ เพิ่มคิว</button></div><div class="toolbar"><input placeholder="🔎 ค้นหาเลขคิว/เกษตรกร"><select><option>ทุกสถานะ</option><option>รอคิว</option><option>กำลังชั่ง</option><option>เสร็จสิ้น</option></select></div><div class="panel table-wrap"><table id="queueTable"><thead><tr><th>คิว</th><th>เกษตรกร</th><th>เวลา</th><th>ทะเบียนรถ</th><th>ประมาณ (กก.)</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody><tr><td><b>#A021</b></td><td>สมชาย ใจดี</td><td>08:00–09:00</td><td>กบ 1234</td><td>2,000</td><td><span class="pill done">เสร็จสิ้น</span></td><td>⋮</td></tr><tr><td><b>#A022</b></td><td>มานะ รักสวน</td><td>08:30–09:30</td><td>ขร 5678</td><td>1,800</td><td><span class="pill blue">กำลังชั่ง</span></td><td>⋮</td></tr><tr class="highlight"><td><b>#A023</b></td><td>วิชัย เทพยม</td><td>09:00–10:00</td><td>กบ 9999</td><td>2,000</td><td><span class="pill wait">รอคิว</span></td><td><button class="small primary" onclick="goStaff('sdetail')">ดู</button></td></tr><tr><td><b>#A024</b></td><td>ประสิทธิ์ ดีดี</td><td>09:30–10:30</td><td>กข 2222</td><td>2,500</td><td><span class="pill wait">รอคิว</span></td><td>⋮</td></tr><tr><td><b>#A025</b></td><td>อารีย์ ยิ้มใจ</td><td>10:00–11:00</td><td>บษ 3333</td><td>2,200</td><td><span class="pill wait">รอคิว</span></td><td>⋮</td></tr></tbody></table></div></div>
+
+      <div id="sdetail" class="page"><div class="page-head"><div><h1>รายละเอียดคิว #A023</h1><p>ข้อมูลเกษตรกรและการจอง</p></div><button class="outline" onclick="goStaff('squeue')">← กลับ</button></div><div class="confirm-grid"><div class="panel"><h2>รายละเอียด</h2><dl><dt>เกษตรกร</dt><dd>วิชัย เทพยม</dd><dt>เบอร์โทร</dt><dd>081-234-5678</dd><dt>ทะเบียนรถ</dt><dd>กบ 9999</dd><dt>วันที่</dt><dd>31 ส.ค. 2569</dd><dt>เวลา</dt><dd>09:00–10:00 น.</dd><dt>ประมาณน้ำหนัก</dt><dd>2,000 กก.</dd><dt>ร้านรับซื้อ</dt><dd>โรงงานปาล์มน้ำมันบ้านนา</dd></dl></div><div class="panel"><h2>สถานะปัจจุบัน</h2><span class="pill wait big-pill">รอคิว</span><button class="primary wide" onclick="setQueueStatus('กำลังชั่ง')">เริ่มชั่งน้ำหนัก</button><button class="outline wide" onclick="showToast('เปิดหน้าแก้ไขคิว')">แก้ไขคิว</button><button class="danger wide" onclick="showToast('ยกเลิกคิวแล้ว')">ยกเลิกคิว</button></div></div></div>
+
+      <div id="sreceive" class="page"><div class="page-head"><div><h1>บันทึกรับซื้อ</h1><p>บันทึกน้ำหนักและราคาจริงของคิว</p></div></div><div class="form-panel"><label>เลขที่คิว<input value="#A023" readonly></label><label>น้ำหนักที่ชั่งได้ (กก.)<input id="receiveWeight" value="2185" type="number"></label><label>ราคาต่อกิโลกรัม (บาท)<input id="receivePrice" value="6.50" type="number" step=".01"></label><label>หมายเหตุ<textarea placeholder="ระบุหมายเหตุ (ถ้ามี)"></textarea></label><button class="primary" onclick="saveReceive()">บันทึกการรับซื้อ</button></div></div>
+
+      <div id="sfarmers" class="page"><div class="page-head"><div><h1>ข้อมูลเกษตรกร</h1><p>สมาชิกในระบบทั้งหมด</p></div><button class="primary" onclick="showToast('เพิ่มเกษตรกรใหม่')">＋ เพิ่มเกษตรกร</button></div><div class="panel table-wrap"><table><thead><tr><th>ชื่อ-สกุล</th><th>เบอร์โทร</th><th>ทะเบียนรถ</th><th>จัดการ</th></tr></thead><tbody><tr><td>สมชาย ใจดี</td><td>081-111-1111</td><td>กบ 1234</td><td>✎ 🗑</td></tr><tr><td>มานะ รักสวน</td><td>082-222-2222</td><td>ขร 5678</td><td>✎ 🗑</td></tr><tr><td>วิชัย เทพยม</td><td>083-333-3333</td><td>กบ 9999</td><td>✎ 🗑</td></tr><tr><td>ประสิทธิ์ ดีดี</td><td>084-444-4444</td><td>กข 2222</td><td>✎ 🗑</td></tr></tbody></table></div></div>
+
+      <div id="sreports" class="page"><div class="page-head"><div><h1>รายงาน</h1><p>สรุปผลการรับซื้อ</p></div></div><div class="cards"><div class="stat"><span>น้ำหนักรวม</span><b>125,680</b><small>กก.</small></div><div class="stat"><span>มูลค่ารวม</span><b>817,920</b><small>บาท</small></div><div class="stat"><span>เกษตรกรทั้งหมด</span><b>86</b><small>ราย</small></div><div class="stat"><span>จำนวนคิวทั้งหมด</span><b>120</b><small>คิว</small></div></div><div class="panel"><h2>กราฟแสดงน้ำหนักรับซื้อ</h2><div class="fake-chart"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:85%"></i><i style="height:62%"></i><i style="height:90%"></i><i style="height:80%"></i></div></div></div>
+
+      <div id="ssettings" class="page"><div class="page-head"><div><h1>ตั้งค่า</h1><p>จัดการช่วงเวลาและข้อมูลร้านรับซื้อ</p></div></div><div class="form-panel"><label>ชื่อร้าน<input value="โรงงานปาล์มน้ำมันบ้านนา"></label><label>เวลาเปิด<input value="08:00" type="time"></label><label>เวลาปิด<input value="17:00" type="time"></label><label>จำนวนคิวต่อช่วงเวลา<input value="10" type="number"></label><button class="primary" onclick="showToast('บันทึกการตั้งค่าแล้ว')">บันทึกการตั้งค่า</button></div></div>
+    </div>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
